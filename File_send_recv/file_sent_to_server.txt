@@ -1,0 +1,6 @@
+This is the file sent from the client.
+
+I hope it is received at the server.
+
+Bye!
+
