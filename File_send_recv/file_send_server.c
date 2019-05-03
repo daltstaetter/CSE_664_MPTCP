@@ -14,9 +14,11 @@
 
 #define PORT 20000 
 #define BACKLOG 5
-#define LENGTH 1024*4
+#define LENGTH 2048 
 #define TIMEOUT_IN_SECONDS	8
 #define SOL_TCP 6 // as defined in netinet/tcp.h
+
+#define IP_ADDRESS_SERVER_WLAN0  "10.231.232.192"
 
 void error(const char *msg)
 {
@@ -63,7 +65,7 @@ int main (int argc, char* argv[])
 	/* Fill the client socket address struct */
 	addr_local.sin_family = AF_INET; // Protocol Family
 	addr_local.sin_port = htons(PORT); // Port number
-	addr_local.sin_addr.s_addr = inet_addr("10.231.232.192"); // Server IP Address
+	addr_local.sin_addr.s_addr = inet_addr(IP_ADDRESS_SERVER_WLAN0); // Server IP Address
 	bzero(&(addr_local.sin_zero), 8); // Flush the rest of struct
 
 	/* Bind a special Port */
@@ -135,7 +137,6 @@ int main (int argc, char* argv[])
 				//	break;
 				}
 			}
-			success = 1;
 			
 			if(fr_block_sz < 0)
 			{
