@@ -60,7 +60,7 @@ int main (int argc, char* argv[])
 		printf("[Server] Obtaining socket descriptor successfully.\n");
 	}
     
-    mptcp_enable = DISABLED;
+    mptcp_enable = ENABLED;
     setsockopt(sockfd, SOL_TCP, MPTCP_ENABLED, &mptcp_enable, sizeof(mptcp_enable));
 
 
