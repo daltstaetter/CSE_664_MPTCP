@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
-    setsockopt(sockfd, SOL_SOCKET, MPTCP_ENABLED, &mptcp_enable, sizeof(mptcp_enable));
+    setsockopt(sockfd, SOL_TCP, MPTCP_ENABLED, &mptcp_enable, sizeof(mptcp_enable));
 
 	/* Fill the socket address struct */
 	remote_addr.sin_family = AF_INET; 
