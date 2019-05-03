@@ -12,15 +12,20 @@
 #include <netdb.h>
 #include <unistd.h>
 
-#define PORT 20000 
+#define PORT 20000
 #define BACKLOG 5
 #define LENGTH 2048 
 #define TIMEOUT_IN_SECONDS	8
-#define SOL_TCP 6 // as defined in netinet/tcp.h
+#define SOL_TCP 6 // as defined in uapi/linux/tcp.h
 
 #define IP_ADDRESS_SERVER_WLAN0 "10.231.232.192"
 #define IP_ADDRESS_SERVER_ETHO  "10.0.0.2"
 #define IP_ADDRESS_SERVER        IP_ADDRESS_SERVER_WLAN0
+
+#define ENABLED     1
+#define DISABLED    0
+#define MPTCP_ENABLED   42
+
 
 void error(const char *msg)
 {
@@ -42,6 +47,7 @@ int main (int argc, char* argv[])
 	char revbuf[LENGTH]; // Receiver buffer
 	char *fr_name;
 	FILE *fr;
+    int mptcp_enable;
 
 	/* Get the Socket file descriptor */
 	if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1 )
@@ -53,6 +59,11 @@ int main (int argc, char* argv[])
 	{
 		printf("[Server] Obtaining socket descriptor successfully.\n");
 	}
+    
+    mptcp_enable = DISABLED;
+    setsockopt(sockfd, SOL_TCP, MPTCP_ENABLED, &mptcp_enable, sizeof(mptcp_enable));
+
+
 
 	status = setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &option, sizeof(option));
 	if (status < 0) 
