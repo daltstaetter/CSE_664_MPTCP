@@ -10,10 +10,13 @@
 #include <ctype.h>          
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <unistd.h>
 
 #define PORT 20000 
 #define BACKLOG 5
-#define LENGTH 512 
+#define LENGTH 1024*4
+#define TIMEOUT_IN_SECONDS	8
+#define SOL_TCP 6 // as defined in netinet/tcp.h
 
 void error(const char *msg)
 {
@@ -21,16 +24,20 @@ void error(const char *msg)
 	exit(1);
 }
 
-int main ()
+int main (int argc, char* argv[])
 {
 	/* Defining Variables */
 	int sockfd; 
 	int nsockfd; 
 	int num;
 	int sin_size; 
+	int status;
+	int option = 2;
 	struct sockaddr_in addr_local; /* client addr */
 	struct sockaddr_in addr_remote; /* server addr */
 	char revbuf[LENGTH]; // Receiver buffer
+	char *fr_name;
+	FILE *fr;
 
 	/* Get the Socket file descriptor */
 	if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1 )
@@ -39,12 +46,24 @@ int main ()
 		exit(1);
 	}
 	else 
+	{
 		printf("[Server] Obtaining socket descriptor successfully.\n");
+	}
 
+	status = setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &option, sizeof(option));
+	if (status < 0) 
+		error("Error reusing port and address. Exiting...");
+
+	struct timeval timeout = {TIMEOUT_IN_SECONDS, 0};
+	if (setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, (const void*) &timeout, sizeof(timeout)) < 0)
+    		fprintf(stderr, "Error configuring socket for rcv-timeout (errno = %d)\n", errno);
+
+
+	
 	/* Fill the client socket address struct */
 	addr_local.sin_family = AF_INET; // Protocol Family
 	addr_local.sin_port = htons(PORT); // Port number
-	addr_local.sin_addr.s_addr = inet_addr("10.230.152.34"); // Client IP Address
+	addr_local.sin_addr.s_addr = inet_addr("10.231.232.192"); // Server IP Address
 	bzero(&(addr_local.sin_zero), 8); // Flush the rest of struct
 
 	/* Bind a special Port */
@@ -72,10 +91,10 @@ int main ()
 	{
 		sin_size = sizeof(struct sockaddr_in);
 
-		/* Wait a connection, and obtain a new socket file despriptor for single connection */
+		/* Wait a connection, and obtain a new socket file descriptor for single connection */
 		if ((nsockfd = accept(sockfd, (struct sockaddr *)&addr_remote, &sin_size)) == -1) 
 		{
-		    fprintf(stderr, "ERROR: Obtaining new Socket Despcritor. (errno = %d)\n", errno);
+		    fprintf(stderr, "ERROR: Obtaining new Socket Descriptor. (errno = %03d)\n", errno);
 			exit(1);
 		}
 		else 
@@ -84,11 +103,16 @@ int main ()
 		}
 
 		/*Receive File from Client */
-		char* fr_name = "/home/csce/Tex_Project/CSE_664_MPTCP/File_send_recv/file_received_from_client.txt";
-		FILE *fr = fopen(fr_name, "a");
+		fr_name = "/home/csce/Tex_Project/CSE_664_MPTCP/File_send_recv/file_received_from_client.txt";
+
+		if (argc > 1)
+			fr = fopen(fr_name, argv[1]); // can be "w" (overwrite) or "a" (append)
+		else
+			fr = fopen(fr_name, "w");
+
 		if(fr == NULL)
 		{
-			printf("File %s Cannot be opened file on server.\n", fr_name);
+			printf("File %s Cannot be opened on server.\n", fr_name);
 		}
 		else
 		{
@@ -101,13 +125,17 @@ int main ()
 			    	{
 			        	error("File write failed on server.\n");
 			    	}
-				
+			 	
+				//printf("frblock_sz: %d\n", fr_block_sz);
+	
 				bzero(revbuf, LENGTH);
-				if (fr_block_sz == 0 || fr_block_sz != 512) 
+				//if (fr_block_sz == 0 || fr_block_sz != LENGTH) 
 				{
-					break;
+				//	printf("Breaking out...%d\n", fr_block_sz);
+				//	break;
 				}
 			}
+			success = 1;
 			
 			if(fr_block_sz < 0)
 			{
@@ -124,41 +152,7 @@ int main ()
 			
 			printf("Ok received from client!\n");
 			fclose(fr); 
+			close(nsockfd);
 		}
-/*
-		// Call the Script 
-		system("cd ; chmod +x script.sh ; ./script.sh");
-
-		// Send File to Client 
-		//if(!fork())
-		//{
-		    char* fs_name = "/home/aryan/Desktop/output.txt";
-		    char sdbuf[LENGTH]; // Send buffer
-		    printf("[Server] Sending %s to the Client...", fs_name);
-		    FILE *fs = fopen(fs_name, "r");
-		    if(fs == NULL)
-		    {
-		        fprintf(stderr, "ERROR: File %s not found on server. (errno = %d)\n", fs_name, errno);
-				exit(1);
-		    }
-
-		    bzero(sdbuf, LENGTH); 
-		    int fs_block_sz; 
-		    while((fs_block_sz = fread(sdbuf, sizeof(char), LENGTH, fs))>0)
-		    {
-		        if(send(nsockfd, sdbuf, fs_block_sz, 0) < 0)
-		        {
-		            fprintf(stderr, "ERROR: Failed to send file %s. (errno = %d)\n", fs_name, errno);
-		            exit(1);
-		        }
-		        bzero(sdbuf, LENGTH);
-		    }
-		    printf("Ok sent to client!\n");
-		    success = 1;
-		    close(nsockfd);
-		    printf("[Server] Connection with Client closed. Server will wait now...\n");
-		    while(waitpid(-1, NULL, WNOHANG) > 0);
-		//}
-*/
 	}
 }
