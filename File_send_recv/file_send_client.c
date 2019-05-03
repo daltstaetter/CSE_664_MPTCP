@@ -12,12 +12,16 @@
 #include <netdb.h>
 #include <unistd.h>
 
+
 #define PORT 20000
 #define LENGTH 2048
 
 #define IP_ADDRESS_SERVER_WLAN0 "10.231.232.192"
 #define IP_ADDRESS_SERVER_ETH0  "10.0.0.2"
 #define IP_ADDRESS_SERVER       IP_ADDRESS_SERVER_WLAN0
+
+#define SOL_TCP         6   // as defined in include/linux/socket.h
+#define MPTCP_ENABLED   42  // as defined in include/uapi/linux/tcp.h
 
 void error(const char *msg)
 {
@@ -33,12 +37,16 @@ int main(int argc, char *argv[])
 	char revbuf[LENGTH]; 
 	struct sockaddr_in remote_addr;
 	char* fs_name; 
+    int mptcp_enable = 0;
+
 	/* Get the Socket file descriptor */
 	if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
 	{
 		fprintf(stderr, "ERROR: Failed to obtain Socket Descriptor! (errno = %d)\n",errno);
 		exit(1);
 	}
+
+    setsockopt(sockfd, SOL_SOCKET, MPTCP_ENABLED, &mptcp_enable, sizeof(mptcp_enable));
 
 	/* Fill the socket address struct */
 	remote_addr.sin_family = AF_INET; 
