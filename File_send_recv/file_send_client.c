@@ -23,6 +23,10 @@
 #define SOL_TCP         6   // as defined in include/linux/socket.h
 #define MPTCP_ENABLED   42  // as defined in include/uapi/linux/tcp.h
 
+#define ENABLED     1
+#define DISABLED    0
+
+
 void error(const char *msg)
 {
 	perror(msg);
@@ -37,7 +41,7 @@ int main(int argc, char *argv[])
 	char revbuf[LENGTH]; 
 	struct sockaddr_in remote_addr;
 	char* fs_name; 
-    int mptcp_enable = 0;
+    int mptcp_enable;
 
 	/* Get the Socket file descriptor */
 	if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
@@ -46,6 +50,7 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
+    mptcp_enable = ENABLED;
     setsockopt(sockfd, SOL_TCP, MPTCP_ENABLED, &mptcp_enable, sizeof(mptcp_enable));
 
 	/* Fill the socket address struct */
