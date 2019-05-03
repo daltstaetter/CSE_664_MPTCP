@@ -18,7 +18,9 @@
 #define TIMEOUT_IN_SECONDS	8
 #define SOL_TCP 6 // as defined in netinet/tcp.h
 
-#define IP_ADDRESS_SERVER_WLAN0  "10.231.232.192"
+#define IP_ADDRESS_SERVER_WLAN0 "10.231.232.192"
+#define IP_ADDRESS_SERVER_ETHO  "10.0.0.2"
+#define IP_ADDRESS_SERVER        IP_ADDRESS_SERVER_WLAN0
 
 void error(const char *msg)
 {
@@ -65,7 +67,7 @@ int main (int argc, char* argv[])
 	/* Fill the client socket address struct */
 	addr_local.sin_family = AF_INET; // Protocol Family
 	addr_local.sin_port = htons(PORT); // Port number
-	addr_local.sin_addr.s_addr = inet_addr(IP_ADDRESS_SERVER_WLAN0); // Server IP Address
+	addr_local.sin_addr.s_addr = inet_addr(IP_ADDRESS_SERVER); // Server IP Address
 	bzero(&(addr_local.sin_zero), 8); // Flush the rest of struct
 
 	/* Bind a special Port */
