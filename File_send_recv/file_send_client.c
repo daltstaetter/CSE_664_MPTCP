@@ -13,7 +13,7 @@
 #include <unistd.h>
 
 #define PORT 20000
-#define LENGTH 512 
+#define LENGTH 1024*4
 
 
 void error(const char *msg)
@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
 	int nsockfd;
 	char revbuf[LENGTH]; 
 	struct sockaddr_in remote_addr;
-
+	char* fs_name; 
 	/* Get the Socket file descriptor */
 	if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
 	{
@@ -55,9 +55,14 @@ int main(int argc, char *argv[])
 	/* Send File to Server */
 	//if(!fork())
 	//{
-		char* fs_name = "/home/csce/Tex_Project/CSE_664_MPTCP/File_send_recv/file_to_send.txt"; // could make fname an arg
+		if (argc > 1)
+			fs_name = argv[1]; //"/home/csce/Tex_Project/CSE_664_MPTCP/File_send_recv/mptcp_2016_04_18.tar.gz"; // could make fname an arg
+		else
+			fs_name = "/home/csce/Tex_Project/CSE_664_MPTCP/File_send_recv/file_sent_to_server.txt"; // could make fname an arg
+			//char* fs_name = "/home/csce/Tex_Project/CSE_664_MPTCP/File_send_recv/mptcp_2016_04_18.tar.gz"; // could make fname an arg
+
 		char sdbuf[LENGTH]; 
-		printf("[Client] Sending %s to the Server... ", fs_name);
+		printf("[Client] Sending %s to the Server... \n", fs_name);
 		FILE *fs = fopen(fs_name, "r");
 		if(fs == NULL)
 		{
@@ -79,15 +84,17 @@ int main(int argc, char *argv[])
 		printf("Ok File %s from Client was Sent!\n", fs_name);
 	//}
 
-	/* Receive File from Server */
-	printf("[Client] Receiveing file from Server and saving it as final.txt...");
-	char* fr_name = "/home/csce/Tex_Project/CSE_664_MPTCP/File_send_recv/file_from_client.txt";
-	FILE *fr = fopen(fr_name, "a");
-	if(fr == NULL)
-		printf("File %s Cannot be opened.\n", fr_name);
-	else
+	// Receive File from Server //
+//	printf("[Client] Receiving file from Server and saving it as final.txt...");
+//	char* fr_name = "/home/csce/Tex_Project/CSE_664_MPTCP/File_send_recv/file_from_client.txt";
+//	FILE *fr = fopen(fr_name, "a");
+//	if(fr == NULL)
 	{
-		bzero(revbuf, LENGTH); 
+//		printf("File %s Cannot be opened.\n", fr_name);
+	}
+//	else
+	{
+/*		bzero(revbuf, LENGTH); 
 		int fr_block_sz = 0;
 	    	while((fr_block_sz = recv(sockfd, revbuf, LENGTH, 0)) > 0)
 	    	{
@@ -99,7 +106,7 @@ int main(int argc, char *argv[])
 			
 			bzero(revbuf, LENGTH);
 			
-			if (fr_block_sz == 0 || fr_block_sz != 512) 
+			if (fr_block_sz == 0 || fr_block_sz != LENGTH) 
 			{
 				break;
 			}
@@ -116,9 +123,9 @@ int main(int argc, char *argv[])
 				fprintf(stderr, "recv() failed due to errno = %d\n", errno);
 			}
 		}
-	    
+*/	    
 		printf("Ok received from server!\n");
-	    	fclose(fr);
+//	    	fclose(fr);
 	}
 	
 	close (sockfd);
