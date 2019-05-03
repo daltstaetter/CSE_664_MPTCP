@@ -13,9 +13,12 @@
 #include <unistd.h>
 
 #define PORT 20000
-#define LENGTH 1024*4
+#define LENGTH 2048
 
 #define IP_ADDRESS_SERVER_WLAN0 "10.231.232.192"
+#define IP_ADDRESS_SERVER_ETH0  "10.0.0.2"
+#define IP_ADDRESS_SERVER       IP_ADDRESS_SERVER_WLAN0
+
 void error(const char *msg)
 {
 	perror(msg);
@@ -40,7 +43,7 @@ int main(int argc, char *argv[])
 	/* Fill the socket address struct */
 	remote_addr.sin_family = AF_INET; 
 	remote_addr.sin_port = htons(PORT); 
-	inet_pton(AF_INET, IP_ADDRESS_SERVER_WLAN0, &remote_addr.sin_addr); // could make IP an argument
+	inet_pton(AF_INET, IP_ADDRESS_SERVER, &remote_addr.sin_addr); // could make IP an argument
 	bzero(&(remote_addr.sin_zero), 8);
 
 	/* Try to connect the remote */
