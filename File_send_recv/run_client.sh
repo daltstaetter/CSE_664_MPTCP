@@ -7,5 +7,5 @@ echo "----------------------------"
 
 echo "Running MPTCP Client"
 echo ""
-./file_send_client_args mptcp_2016_04_18.tar.gz
+./file_send_client_args mptcp_2016_04_18.tar.gz_full
 

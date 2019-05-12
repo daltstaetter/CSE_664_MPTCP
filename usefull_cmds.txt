@@ -1,0 +1,17 @@
+Download 120 MB file from MPTCP server
+wget http://multipath-tcp.org/snapshots/mptcp_2016_04_18.tar.gz
+
+Lookup the IP Address associated with a domain name
+nslookup multipath-tcp.org | grep -i "Name:" -A 1
+
+Capture (MP)TCP traffic and parse for IP addresses starting with '10.'
+sudo tcpdump -ni any | grep -i "10\.*" > socket_debug.txt
+
+Run the server and save into file "file_received_from_client.txt"
+Has options "w" to (over)write to file or "a" to append to file
+./file_send_server [wa]
+Example usage: ./file_send_server w
+
+Run the Client and send file "file_to_send_to_server" to server
+./file_send_client_args file_to_send_to_server  
+Example usage: ./file_send_client_args mptcp_2016_04_18.tar.gz_full
