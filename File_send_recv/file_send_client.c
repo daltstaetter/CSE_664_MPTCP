@@ -66,7 +66,9 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 	else 
+    {
 		printf("[Client] Connected to server at port %d...ok!\n", PORT);
+    }
 
 	/* Send File to Server */
 	//if(!fork())
